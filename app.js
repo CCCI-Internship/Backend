@@ -1,11 +1,29 @@
-const express = require('express')
-const app = express()
-const cors = require('cors')
+import Logger from "./utils/Logger.js";
+import InitializeApp from "./utils/InitializeApp.js";
+import dotenv from 'dotenv';
+import express from 'express';
+import cors from 'cors';
+import SampleRouter from './routes/sample-routes.js';
 
-app.use(cors())
-app.use(express.json())
+const app = express();
 
-const UserRouter = require('./routes/user-routes');
-app.use('/user', UserRouter)
+app.use(cors());
+app.use(express.json());
+dotenv.config();
 
-app.listen(5000, () => console.log('server is running at http://localhost:5000'))
+app.use('/sample', SampleRouter);
+
+Logger.setup(app);
+
+InitializeApp.init(app)
+  .then(() => {
+    const PORT = 5000;
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      Logger.info(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Initialization error:", error);
+    Logger.error("Initialization error:" + error);
+  });
